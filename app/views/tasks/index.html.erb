@@ -1,0 +1,41 @@
+<h1>Your Tasks</h1>
+
+<%= link_to "Back to Dashboard", root_path, class: "btn btn-primary" %>
+
+
+<!-- Filter by status -->
+<p>
+  <strong>Filter by status:</strong>
+  <%= link_to "All", tasks_path %> |
+  <%= link_to "Pending", tasks_path(status: "pending") %> |
+  <%= link_to "In Progress", tasks_path(status: "in_progress") %> |
+  <%= link_to "Done", tasks_path(status: "done") %>
+</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+  <thead>
+    <tr>
+      <th>Title</th>
+      <th>Status</th>
+      <th>Due Date</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @tasks.each do |task| %>
+      <tr>
+        <td><%= task.title %></td>
+        <td><%= task.status.humanize %></td>
+        <td><%= task.due_date %></td>
+        <td>
+          <%= link_to "View", task_path(task) %> |
+          <%= link_to "Edit", edit_task_path(task) %> |
+          <%= link_to "Delete", task_path(task), method: :delete, data: { confirm: "Are you sure?" } %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<p><%= link_to "Create New Task", new_task_path %></p>

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>TaskManager</title>
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-..." crossorigin="anonymous">
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body>
+    <header>
+      <% if user_signed_in? %>
+        <p>
+          <%= link_to 'Logout', destroy_user_session_path, method: :delete %>
+        </p>
+      <% else %>
+        <% unless current_page?(new_user_session_path) || current_page?(new_user_registration_path) %>
+          <%= link_to 'Login', new_user_session_path %> |
+          <%= link_to 'Sign Up', new_user_registration_path %>
+        <% end %>
+      <% end %>
+    </header>
+
+    <main>
+      <%= yield %>
+    </main>
+  </body>
+</html>
