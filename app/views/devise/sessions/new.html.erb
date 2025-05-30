@@ -1,30 +1,23 @@
 <div class="d-flex vh-100 justify-content-center align-items-center">
   <div class="card p-4" style="min-width: 300px; max-width: 400px; width: 100%;">
-    <h2 class="mb-4 text-center">Login</h2>
+    <h2 class="m-4 text-center">Welcome to Frontlyne</h2>
 
     <%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
-      <div class="mb-3">
-        <%= f.label :email, class: "form-label" %>
-        <%= f.email_field :email, autofocus: true, class: "form-control" %>
-      </div>
-
     <div class="mb-3">
-      <%= f.label :password, class: "form-label" %>
-      <div class="input-group">
-        <%= f.password_field :password, autocomplete: "current-password", class: "form-control", id: "password-field" %>
-      </div>
+      <% f.label :email, class: "form-label" %>
+      <%= f.email_field :email, autofocus: true, placeholder: "Enter email ID", class: "form-control" %>
     </div>
 
 
-      <div class="mb-3 form-check">
-        <%= f.check_box :remember_me, class: "form-check-input" %>
-        <%= f.label :remember_me, class: "form-check-label" %>
-      </div>
-
       <%= f.submit "Continue", class: "btn btn-primary w-100" %>
-
-
     <% end %>
+
+    <hr>
+
+    <p class="my-3">By logging to this application you abide by its Terms & Conditions</p>
+
+    <p class="my-3">Powered by</p>
+    <h4>Frontlyne</h4>
 
     <%= render "devise/shared/links" %>
   </div>

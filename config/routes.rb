@@ -1,6 +1,8 @@
 Rails.application.routes.draw do
-  # Devise routes for User authentication
-  devise_for :users
+  devise_for :users, controllers: {
+    sessions: 'users/sessions'
+  }
+
 
   # Dashboard as the authenticated root (home page after login)
   authenticated :user do
@@ -16,4 +18,5 @@ Rails.application.routes.draw do
   resources :tasks
 
   # You can add other routes here as needed
+
 end

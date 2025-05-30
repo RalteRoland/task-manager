@@ -1,28 +1,42 @@
-<h1>Dashboard</h1>
+<div class="p-5">
+    <h1>Dashboard</h1>
 
-<p>Welcome, <%= current_user.email %>!</p>
+<p class="lead">Welcome, <%= current_user.email %>!</p>
 
-<h2>
+<div class="mb-4">
   <%= link_to "Create New Task", new_task_path, class: "btn btn-primary" %>
-</h2>
+</div>
 
-<div>
+<div class="mb-5">
   <h3>Task Summary</h3>
-  <ul>
-    <li>Total Tasks: <%= @tasks_count %></li>
-    <li>Pending: <%= @pending_count %></li>
-    <li>In Progress: <%= @in_progress_count %></li>
-    <li>Done: <%= @done_count %></li>
+  <ul class="list-group" style="max-width: 400px;">
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+      Total Tasks
+      <span class="badge bg-primary rounded-pill"><%= @tasks_count %></span>
+    </li>
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+      Pending
+      <span class="badge bg-warning rounded-pill"><%= @pending_count %></span>
+    </li>
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+      In Progress
+      <span class="badge bg-info rounded-pill"><%= @in_progress_count %></span>
+    </li>
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+      Done
+      <span class="badge bg-success rounded-pill"><%= @done_count %></span>
+    </li>
   </ul>
 </div>
 
-<div>
+<div class="mb-5">
   <h3>Upcoming Tasks</h3>
   <% if @upcoming_tasks.any? %>
-    <ul>
+    <ul class="list-group" style="max-width: 600px;">
       <% @upcoming_tasks.each do |task| %>
-        <li>
-          <%= link_to task.title, task_path(task) %> - Due <%= task.due_date.strftime("%b %d, %Y") %>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <%= link_to task.title, task_path(task), class: "text-decoration-none" %>
+          <small class="text-muted">Due <%= task.due_date.strftime("%b %d, %Y") %></small>
         </li>
       <% end %>
     </ul>
@@ -31,4 +45,8 @@
   <% end %>
 </div>
 
-<p><%= link_to "View All Tasks", tasks_path %></p>
+<p>
+  <%= link_to "View All Tasks", tasks_path, class: "btn btn-secondary" %>
+</p>
+
+</div>
