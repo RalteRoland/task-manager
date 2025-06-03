@@ -19,7 +19,11 @@ gem "jbuilder"
 gem "devise"
 
 group :development do
-  gem 'letter_opener'
+  gem "letter_opener"
+end
+
+group :development, :test do
+  gem 'rspec-rails'
 end
 
 

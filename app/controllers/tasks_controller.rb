@@ -1,6 +1,6 @@
 class TasksController < ApplicationController
   before_action :authenticate_user!      # Require login for all actions
-  before_action :set_task, only: [:edit, :update, :destroy]
+  before_action :set_task, only: [ :edit, :update, :destroy ]
 
   def index
     @status_filter = params[:status]
