@@ -1,21 +1,20 @@
 Rails.application.routes.draw do
-  devise_for :users, controllers: {
+  devise_for :users,
+  controllers: {
     sessions: "users/sessions"
   }
 
+  # Add this line for the API endpoint
+  get '/dashboard', to: 'dashboard#index'
 
-  # Dashboard as the authenticated root (home page after login)
+  # Your existing routes...
   authenticated :user do
     root to: "dashboard#index", as: :authenticated_root
   end
 
-  # Redirect unauthenticated users to the login page
   unauthenticated do
     root to: redirect("/users/sign_in")
   end
 
-  # Resources for tasks with all CRUD routes
   resources :tasks
-
-  # You can add other routes here as needed
 end

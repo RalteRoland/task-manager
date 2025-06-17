@@ -1,12 +1,24 @@
 class Users::SessionsController < Devise::SessionsController
-  def create
-    user = User.find_by(email: params[:user][:email])
+  # protect_from_forgery with: :null_session  # disable CSRF for API calls
+  skip_before_action :verify_authenticity_token
 
-    if user
+
+  def create
+    Rails.logger.info "Login params: #{params.inspect}"  # Log incoming params for debugging
+
+    user = User.find_by(email: params.dig(:user, :email))
+    password = params.dig(:user, :password)
+
+    if user && user.valid_password?(password)
       sign_in(user)
-      redirect_to root_path, notice: "Logged in successfully with email only."
+      render json: { message: "Logged in successfully", user: { email: user.email, id: user.id } }, status: :ok
     else
-      redirect_to new_user_session_path, alert: "Invalid email address."
+      render json: { error: "Invalid email or password" }, status: :unauthorized
     end
+  end
+
+  def destroy
+    sign_out(current_user)
+    render json: { message: 'Logged out successfully' }, status: :ok
   end
 end

@@ -1,7 +1,22 @@
 class User < ApplicationRecord
-  # Devise modules - default ones you had
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
 
   has_many :tasks, dependent: :destroy
+
+  # Add token authentication
+  before_save :ensure_authentication_token
+
+  private
+
+  def ensure_authentication_token
+    self.authentication_token ||= generate_authentication_token
+  end
+
+  def generate_authentication_token
+    loop do
+      token = Devise.friendly_token
+      break token unless User.where(authentication_token: token).first
+    end
+  end
 end
