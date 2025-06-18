@@ -7,6 +7,10 @@ class User < ApplicationRecord
   # Add token authentication
   before_save :ensure_authentication_token
 
+  def name
+    self[:name].presence || email
+  end
+
   private
 
   def ensure_authentication_token
