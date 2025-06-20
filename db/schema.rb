@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_06_20_064735) do
+ActiveRecord::Schema[8.0].define(version: 2025_06_20_095850) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -46,6 +46,14 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_20_064735) do
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "subtasks", force: :cascade do |t|
+    t.string "title"
+    t.bigint "task_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["task_id"], name: "index_subtasks_on_task_id"
   end
 
   create_table "tasks", force: :cascade do |t|
@@ -87,6 +95,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_20_064735) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "subtasks", "tasks"
   add_foreign_key "tasks", "users"
   add_foreign_key "user_roles", "roles"
   add_foreign_key "user_roles", "users"

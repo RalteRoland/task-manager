@@ -1,5 +1,7 @@
 class Task < ApplicationRecord
   has_many_attached :attachments
+  has_many :subtasks, dependent: :destroy
+  accepts_nested_attributes_for :subtasks, allow_destroy: true
   belongs_to :user  # Added this - needed for current_user.tasks
   belongs_to :assignee, class_name: 'User', optional: true
 
