@@ -14,7 +14,6 @@ class DashboardController < ApplicationController
 
     render json: {
       tasks_count: current_user.tasks.count,
-      # pending_count: current_user.tasks.where(status: "pending").count,  # Remove this line
       in_progress_count: current_user.tasks.where(status: "in_progress").count,
       done_count: current_user.tasks.where(status: "done").count,
       overdue_count: current_user.tasks.where("status != ? AND due_date < ?", "done", Date.today).count,

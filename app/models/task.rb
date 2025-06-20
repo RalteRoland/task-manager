@@ -1,12 +1,15 @@
 class Task < ApplicationRecord
+  has_many_attached :attachments
+  belongs_to :user  # Added this - needed for current_user.tasks
   belongs_to :assignee, class_name: 'User', optional: true
 
   validates :title, presence: true
-  validates :status, presence: true, inclusion: { in: %w[in_progress done] }  # Removed 'pending'
+  validates :description, presence: true  # Added this back since your form requires it
+  validates :status, presence: true, inclusion: { in: %w[in_progress done] }
   validates :due_date, presence: true
 
   def assignee_name
-    assignee&.name || "Unassigned"
+    assignee&.name || assignee&.email  # Fixed the string literal bug
   end
 
   def display_status

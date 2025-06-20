@@ -2,6 +2,9 @@ class TasksController < ApplicationController
   before_action :authenticate_user!
   before_action :set_task, only: [:show, :edit, :update, :destroy]
 
+  # Skip CSRF protection for API endpoints
+  skip_before_action :verify_authenticity_token
+
   def index
     @status_filter = params[:status]
 
@@ -20,8 +23,21 @@ class TasksController < ApplicationController
 
   def create
     @task = current_user.tasks.build(task_params)
+
     if @task.save
-      render json: @task, status: :created
+      # Include attachments in the response if they exist
+      response_data = @task.as_json
+      if @task.attachments.any?
+        response_data['attachments'] = @task.attachments.map do |attachment|
+          {
+            id: attachment.id,
+            filename: attachment.filename.to_s,
+            url: url_for(attachment) # This generates a URL to access the file
+          }
+        end
+      end
+
+      render json: response_data, status: :created
     else
       render json: { errors: @task.errors.full_messages }, status: :unprocessable_entity
     end
@@ -29,7 +45,19 @@ class TasksController < ApplicationController
 
   def update
     if @task.update(task_params)
-      render json: @task
+      # Include attachments in the response if they exist
+      response_data = @task.as_json
+      if @task.attachments.any?
+        response_data['attachments'] = @task.attachments.map do |attachment|
+          {
+            id: attachment.id,
+            filename: attachment.filename.to_s,
+            url: url_for(attachment)
+          }
+        end
+      end
+
+      render json: response_data
     else
       render json: { errors: @task.errors.full_messages }, status: :unprocessable_entity
     end
@@ -47,6 +75,6 @@ class TasksController < ApplicationController
   end
 
   def task_params
-    params.require(:task).permit(:title, :description, :assignee_id, :status, :due_date)
+    params.require(:task).permit(:title, :description, :assignee_id, :due_date, :status, attachments: [])
   end
 end
