@@ -8,7 +8,8 @@ class TasksController < ApplicationController
   def index
     @status_filter = params[:status]
 
-    @tasks = if @status_filter.present? && %w[pending in_progress done].include?(@status_filter)
+    @tasks = if @status_filter.present? && %w[open in_progress done overdue].include?(@status_filter)
+
                current_user.tasks.where(status: @status_filter).order(due_date: :asc)
              else
                current_user.tasks.order(due_date: :asc)
@@ -18,9 +19,10 @@ class TasksController < ApplicationController
   end
 
 def show
-  task_data = @task.as_json(include: {
+  task_data = @task.as_json(only: [:id, :title, :description, :status, :due_date, :priority], include: {
     subtasks: { only: [:id, :title] }
   })
+
 
   task_data[:assignee_name] = @task.assignee&.name
   task_data[:assignee_email] = @task.assignee&.email
@@ -30,6 +32,7 @@ def show
 
   render json: task_data
 end
+
 
 
 
@@ -57,23 +60,12 @@ end
 
   def update
     if @task.update(task_params)
-      # Include attachments in the response if they exist
-      response_data = @task.as_json
-      if @task.attachments.any?
-        response_data['attachments'] = @task.attachments.map do |attachment|
-          {
-            id: attachment.id,
-            filename: attachment.filename.to_s,
-            url: url_for(attachment)
-          }
-        end
-      end
-
-      render json: response_data
+      render json: @task
     else
       render json: { errors: @task.errors.full_messages }, status: :unprocessable_entity
     end
   end
+
 
   def destroy
     @task.destroy
@@ -94,7 +86,7 @@ end
       :due_date,
       :status,
       attachments: [],
-      subtasks_attributes: [:id, :title, :_destroy]
+      subtasks_attributes: [:id, :title, :completed, :_destroy]
     )
   end
 

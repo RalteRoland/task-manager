@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_06_20_095850) do
+ActiveRecord::Schema[8.0].define(version: 2025_06_23_120848) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -42,10 +42,14 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_20_095850) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
-  create_table "roles", force: :cascade do |t|
-    t.string "name"
+  create_table "comments", force: :cascade do |t|
+    t.text "content"
+    t.bigint "user_id", null: false
+    t.bigint "task_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["task_id"], name: "index_comments_on_task_id"
+    t.index ["user_id"], name: "index_comments_on_user_id"
   end
 
   create_table "subtasks", force: :cascade do |t|
@@ -53,6 +57,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_20_095850) do
     t.bigint "task_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "completed"
     t.index ["task_id"], name: "index_subtasks_on_task_id"
   end
 
@@ -65,16 +70,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_20_095850) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "assignee_id"
+    t.string "priority"
     t.index ["user_id"], name: "index_tasks_on_user_id"
-  end
-
-  create_table "user_roles", force: :cascade do |t|
-    t.bigint "user_id", null: false
-    t.bigint "role_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["role_id"], name: "index_user_roles_on_role_id"
-    t.index ["user_id"], name: "index_user_roles_on_user_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -89,14 +86,16 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_20_095850) do
     t.string "password_digest"
     t.string "authentication_token"
     t.string "name"
+    t.string "role"
+    t.string "status"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "comments", "tasks"
+  add_foreign_key "comments", "users"
   add_foreign_key "subtasks", "tasks"
   add_foreign_key "tasks", "users"
-  add_foreign_key "user_roles", "roles"
-  add_foreign_key "user_roles", "users"
 end

@@ -1,13 +1,28 @@
 Rails.application.routes.draw do
+  get "users/index"
   devise_for :users,
-  controllers: {
-    sessions: "users/sessions"
-  }
+             controllers: {
+               sessions: "users/sessions"
+             }
 
-  # Add this line for the API endpoint
+  # API endpoint
   get '/dashboard', to: 'dashboard#index'
 
-  # Your existing routes...
+
+  get '/employees', to: 'users#index'
+
+
+  # Routes for tasks
+  resources :tasks
+
+  # ✅ Add this line for updating a subtask's completion status
+  resources :subtasks, only: [:update]
+
+  resources :users, only: [:index]
+
+
+
+
   authenticated :user do
     root to: "dashboard#index", as: :authenticated_root
   end
@@ -15,6 +30,4 @@ Rails.application.routes.draw do
   unauthenticated do
     root to: redirect("/users/sign_in")
   end
-
-  resources :tasks
 end
