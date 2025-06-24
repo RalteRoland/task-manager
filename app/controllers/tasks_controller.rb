@@ -9,31 +9,37 @@ class TasksController < ApplicationController
     @status_filter = params[:status]
 
     @tasks = if @status_filter.present? && %w[open in_progress done overdue].include?(@status_filter)
-
-               current_user.tasks.where(status: @status_filter).order(due_date: :asc)
+               current_user.tasks.order(due_date: :asc).select { |t| t.display_status == @status_filter }
              else
                current_user.tasks.order(due_date: :asc)
              end
 
-    render json: @tasks
+    tasks_json = @tasks.map do |task|
+      task.as_json(only: [:id, :title, :description, :due_date, :priority]).merge(
+        status: task.display_status
+      )
+    end
+
+    render json: tasks_json
   end
 
-def show
-  task_data = @task.as_json(only: [:id, :title, :description, :status, :due_date, :priority], include: {
-    subtasks: { only: [:id, :title] }
-  })
+  def show
+    task_data = @task.as_json(
+      only: [:id, :title, :description, :due_date, :priority],
+      include: {
+        subtasks: { only: [:id, :title, :completed] } # included 'completed' if you need checkbox state
+      }
+    )
 
+    task_data[:status] = @task.display_status
+    task_data[:assignee_name] = @task.assignee&.name
+    task_data[:assignee_email] = @task.assignee&.email
+    task_data[:creator_name] = @task.user.name
+    task_data[:creator_email] = @task.user.email
+    task_data[:attachments] = @task.attachments.map { |file| url_for(file) }
 
-  task_data[:assignee_name] = @task.assignee&.name
-  task_data[:assignee_email] = @task.assignee&.email
-  task_data[:creator_name] = @task.user.name
-  task_data[:creator_email] = @task.user.email
-  task_data[:attachments] = @task.attachments.map { |file| url_for(file) }
-
-  render json: task_data
-end
-
-
+    render json: task_data
+  end
 
 
   def create
@@ -66,7 +72,6 @@ end
     end
   end
 
-
   def destroy
     @task.destroy
     head :no_content
@@ -85,9 +90,23 @@ end
       :assignee_id,
       :due_date,
       :status,
+      :priority,
       attachments: [],
       subtasks_attributes: [:id, :title, :completed, :_destroy]
     )
   end
+end
 
+class Task < ApplicationRecord
+  VALID_PRIORITIES = %w[low medium high].freeze
+
+  belongs_to :user
+  belongs_to :assignee, class_name: 'User', optional: true
+  has_many :subtasks, dependent: :destroy
+  has_many_attached :attachments
+
+  validates :title, presence: true
+  validates :priority, presence: true, inclusion: { in: VALID_PRIORITIES }
+
+  # Add any additional validations or methods here
 end

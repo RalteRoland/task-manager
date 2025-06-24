@@ -9,6 +9,10 @@ class Task < ApplicationRecord
   belongs_to :user
   belongs_to :assignee, class_name: 'User', optional: true
 
+  VALID_PRIORITIES = %w[low medium high].freeze
+
+  validates :priority, presence: true, inclusion: { in: VALID_PRIORITIES }
+
   VALID_STATUSES = %w[open in_progress done].freeze
 
   validates :title, :description, :due_date, presence: true
