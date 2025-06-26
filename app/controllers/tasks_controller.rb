@@ -25,7 +25,7 @@ class TasksController < ApplicationController
 
   def show
     task_data = @task.as_json(
-      only: [:id, :title, :description, :due_date, :priority, :reminder_option],
+      only: [:id, :title, :description, :due_date, :priority, :reminder_option, :created_at],
       include: {
         subtasks: { only: [:id, :title, :completed] }
       }
