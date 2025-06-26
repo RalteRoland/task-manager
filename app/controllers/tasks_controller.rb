@@ -25,9 +25,9 @@ class TasksController < ApplicationController
 
   def show
     task_data = @task.as_json(
-      only: [:id, :title, :description, :due_date, :priority],
+      only: [:id, :title, :description, :due_date, :priority, :reminder_option],
       include: {
-        subtasks: { only: [:id, :title, :completed] } # included 'completed' if you need checkbox state
+        subtasks: { only: [:id, :title, :completed] }
       }
     )
 
@@ -91,22 +91,9 @@ class TasksController < ApplicationController
       :due_date,
       :status,
       :priority,
+      :reminder_option,
       attachments: [],
       subtasks_attributes: [:id, :title, :completed, :_destroy]
     )
   end
-end
-
-class Task < ApplicationRecord
-  VALID_PRIORITIES = %w[low medium high].freeze
-
-  belongs_to :user
-  belongs_to :assignee, class_name: 'User', optional: true
-  has_many :subtasks, dependent: :destroy
-  has_many_attached :attachments
-
-  validates :title, presence: true
-  validates :priority, presence: true, inclusion: { in: VALID_PRIORITIES }
-
-  # Add any additional validations or methods here
 end
