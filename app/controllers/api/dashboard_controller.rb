@@ -1,4 +1,4 @@
-class DashboardController < ApplicationController
+class Api::DashboardController < ApplicationController
   before_action :authenticate_user!
   protect_from_forgery with: :null_session
 

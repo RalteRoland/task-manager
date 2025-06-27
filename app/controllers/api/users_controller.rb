@@ -1,4 +1,4 @@
-class UsersController < ApplicationController
+class Api::UsersController < ApplicationController
   before_action :authenticate_user!
 
   def index
@@ -8,7 +8,9 @@ class UsersController < ApplicationController
         name: user.name,
         role: user.role || "N/A",
         assigned_tasks_count: user.assigned_tasks.count,
-        status: "Active" # You can update this logic if needed
+        status: "Active" ,
+
+
       }
     end
 

@@ -27,6 +27,11 @@ group :development, :test do
   gem "rspec-rails"
 end
 
+group :development do
+  gem 'rails_best_practices'
+end
+
+
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 # gem "bcrypt", "~> 3.1.7"

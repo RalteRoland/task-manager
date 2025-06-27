@@ -1,6 +1,6 @@
-class TasksController < ApplicationController
+class Api::TasksController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_task, only: [:show, :edit, :update, :destroy]
+  before_action :set_task, only: [:show, :update, :destroy]
 
   # Skip CSRF protection for API endpoints
   skip_before_action :verify_authenticity_token

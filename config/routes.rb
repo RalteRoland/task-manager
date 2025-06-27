@@ -1,28 +1,22 @@
 Rails.application.routes.draw do
-  get "users/index"
   devise_for :users,
              controllers: {
                sessions: "users/sessions"
              }
 
-  # API endpoint
-  get '/dashboard', to: 'dashboard#index'
+  # ✅ All API routes grouped together
+  namespace :api do
+    get 'roles', to: 'roles#index'
+    get 'dashboard', to: 'dashboard#index'
+    resources :tasks
+    resources :users, only: [:index]
+    resources :subtasks, only: [:update]
+    resources :comments, only: [:create]
 
+    # Add other API routes here later (tasks, comments, etc.)
+  end
 
-  get '/employees', to: 'users#index'
-
-
-  # Routes for tasks
-  resources :tasks
-
-  # ✅ Add this line for updating a subtask's completion status
-  resources :subtasks, only: [:update]
-
-  resources :users, only: [:index]
-
-
-
-
+  # 🔁 Root login routing
   authenticated :user do
     root to: "dashboard#index", as: :authenticated_root
   end

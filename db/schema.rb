@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_06_26_065426) do
+ActiveRecord::Schema[8.0].define(version: 2025_06_27_102445) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -52,6 +52,14 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_26_065426) do
     t.index ["user_id"], name: "index_comments_on_user_id"
   end
 
+  create_table "roles", force: :cascade do |t|
+    t.string "name", null: false
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_roles_on_name", unique: true
+  end
+
   create_table "subtasks", force: :cascade do |t|
     t.string "title"
     t.bigint "task_id", null: false
@@ -87,10 +95,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_26_065426) do
     t.string "password_digest"
     t.string "authentication_token"
     t.string "name"
-    t.string "role"
     t.string "status"
+    t.bigint "role_id"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+    t.index ["role_id"], name: "index_users_on_role_id"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
@@ -99,4 +108,5 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_26_065426) do
   add_foreign_key "comments", "users"
   add_foreign_key "subtasks", "tasks"
   add_foreign_key "tasks", "users"
+  add_foreign_key "users", "roles"
 end

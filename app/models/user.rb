@@ -4,8 +4,9 @@ class User < ApplicationRecord
 
   has_many :tasks, dependent: :destroy
   has_many :comments, dependent: :nullify
-
+  has_one_attached :profile_picture
   has_many :assigned_tasks, class_name: 'Task', foreign_key: 'assignee_id', dependent: :nullify
+  belongs_to :role, optional: true
 
   # Add token authentication
   before_save :ensure_authentication_token
