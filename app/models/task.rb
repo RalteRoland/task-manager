@@ -7,25 +7,24 @@ class Task < ApplicationRecord
   accepts_nested_attributes_for :comments, allow_destroy: true
 
   belongs_to :user
+  belongs_to :status
   belongs_to :assignee, class_name: 'User', optional: true
+
+  before_create :set_default_status
+  after_initialize :set_default_status, if: :new_record?
 
   VALID_PRIORITIES = %w[low medium high].freeze
 
-  validates :priority, presence: true, inclusion: { in: VALID_PRIORITIES }
-
-  VALID_STATUSES = %w[open in_progress done].freeze
-
-  validates :title, :description, :due_date, presence: true
-  validates :status, presence: true, inclusion: { in: VALID_STATUSES }
-
-  after_initialize :set_default_status, if: :new_record?
+  validates :title, :description, :due_date, :priority, presence: true
+  validates :priority, inclusion: { in: VALID_PRIORITIES }
+  validates :status, presence: true  # ✅ Now only checks presence, not a string
 
   def set_default_status
-    self.status ||= 'open'
+    self.status ||= Status.find_by(name: 'open')
   end
 
   def mark_in_progress_if_open!
-    update(status: 'in_progress') if status == 'open'
+    update(status: Status.find_by(name: 'in_progress')) if status.name == 'open'
   end
 
   def assignee_name
@@ -33,14 +32,18 @@ class Task < ApplicationRecord
   end
 
   def display_status
-    if status != 'done' && due_date.present? && due_date < Date.today
+    if status&.name != 'done' && due_date.present? && due_date < Date.today
       'overdue'
     else
-      status
+      status&.name || 'unknown'
     end
   end
 
+
+
+
+
   def overdue?
-    status != 'done' && due_date.present? && due_date < Date.today
+    status.name != 'done' && due_date.present? && due_date < Date.today
   end
 end

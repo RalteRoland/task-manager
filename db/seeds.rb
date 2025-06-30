@@ -7,3 +7,8 @@
 #   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
+statuses = ["open", "in_progress", "done", "overdue"]
+
+statuses.each do |status_name|
+  Status.find_or_create_by(name: status_name)
+end

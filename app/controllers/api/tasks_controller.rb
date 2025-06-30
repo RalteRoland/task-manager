@@ -1,6 +1,6 @@
 class Api::TasksController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_task, only: [:show, :update, :destroy]
+  before_action :set_task, only: [:show, :update, :destroy, :mark_complete] # 👈 Add mark_complete
 
   # Skip CSRF protection for API endpoints
   skip_before_action :verify_authenticity_token
@@ -9,14 +9,20 @@ class Api::TasksController < ApplicationController
     @status_filter = params[:status]
 
     @tasks = if @status_filter.present? && %w[open in_progress done overdue].include?(@status_filter)
-               current_user.tasks.order(due_date: :asc).select { |t| t.display_status == @status_filter }
-             else
-               current_user.tasks.order(due_date: :asc)
-             end
+              current_user.tasks.includes(:status).order(due_date: :asc).select { |t| t.display_status == @status_filter }
+            else
+              current_user.tasks.includes(:status).order(due_date: :asc)
+            end
 
     tasks_json = @tasks.map do |task|
-      task.as_json(only: [:id, :title, :description, :due_date, :priority]).merge(
-        status: task.display_status
+      task.as_json(
+        only: [:id, :title, :description, :due_date, :priority],
+        include: {
+          status: { only: [:id, :name] }
+        }
+      ).merge(
+        display_status: task.display_status,
+        assignee: task.assignee_name
       )
     end
 
@@ -31,7 +37,11 @@ class Api::TasksController < ApplicationController
       }
     )
 
-    task_data[:status] = @task.display_status
+    task_data[:status] = {
+      id: @task.status&.id || 0,
+      name: @task.display_status || 'open'
+    }
+
     task_data[:assignee_name] = @task.assignee&.name
     task_data[:assignee_email] = @task.assignee&.email
     task_data[:creator_name] = @task.user.name
@@ -40,7 +50,6 @@ class Api::TasksController < ApplicationController
 
     render json: task_data
   end
-
 
   def create
     @task = current_user.tasks.build(task_params)
@@ -66,7 +75,15 @@ class Api::TasksController < ApplicationController
 
   def update
     if @task.update(task_params)
-      render json: @task
+      # 👈 FIX: Return consistent format like other methods
+      render json: {
+        id: @task.id,
+        status: {
+          id: @task.status.id,
+          name: @task.status.name
+        },
+        display_status: @task.display_status
+      }
     else
       render json: { errors: @task.errors.full_messages }, status: :unprocessable_entity
     end
@@ -75,6 +92,24 @@ class Api::TasksController < ApplicationController
   def destroy
     @task.destroy
     head :no_content
+  end
+
+  # 👈 FIX: Make sure this method is properly defined
+  def mark_complete
+    @task = current_user.tasks.find(params[:id])
+    done_status = Status.find_by(name: 'done')
+
+    if done_status && @task.update(status: done_status)
+      render json: {
+        status: {
+          id: done_status.id,
+          name: done_status.name
+        },
+        display_status: @task.display_status
+      }
+    else
+      render json: { error: 'Failed to mark as complete' }, status: :unprocessable_entity
+    end
   end
 
   private
@@ -89,8 +124,8 @@ class Api::TasksController < ApplicationController
       :description,
       :assignee_id,
       :due_date,
-      :status,
       :priority,
+      :status_id,
       :reminder_option,
       attachments: [],
       subtasks_attributes: [:id, :title, :completed, :_destroy]

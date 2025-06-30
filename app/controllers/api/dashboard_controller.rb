@@ -3,22 +3,25 @@ class Api::DashboardController < ApplicationController
   protect_from_forgery with: :null_session
 
   def index
-    tasks_with_display_status = current_user.tasks.includes(:assignee).order(due_date: :asc).map do |task|
+    tasks = current_user.tasks.includes(:status, :assignee).order(due_date: :asc)
+
+    tasks_with_display_status = tasks.map do |task|
       task.as_json(
-        only: [:id, :title, :due_date, :status]
+        only: [:id, :title, :due_date]
       ).merge(
+        'status' => task.status&.name,
         'display_status' => task.display_status,
         'assignee' => task.assignee&.name || 'Unassigned'
       )
     end
 
     render json: {
-      tasks_count: current_user.tasks.count,
-      in_progress_count: current_user.tasks.where(status: "in_progress").count,
-      done_count: current_user.tasks.where(status: "done").count,
-      overdue_count: current_user.tasks.where("status != ? AND due_date < ?", "done", Date.today).count,
+      tasks_count: tasks.count,
+      in_progress_count: tasks.select { |t| t.status&.name == 'in_progress' }.count,
+      done_count: tasks.select { |t| t.status&.name == 'done' }.count,
+      overdue_count: tasks.select { |t| t.display_status == 'overdue' }.count,
       all_tasks: tasks_with_display_status,
-      completed_tasks: current_user.tasks.where(status: "done").order(updated_at: :desc).limit(5)
+      completed_tasks: tasks.select { |t| t.status&.name == 'done' }.sort_by(&:updated_at).reverse.take(5)
     }
   end
 end

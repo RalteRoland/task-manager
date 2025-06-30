@@ -6,12 +6,20 @@ Rails.application.routes.draw do
 
   # ✅ All API routes grouped together
   namespace :api do
+    get "statuses/index"
     get 'roles', to: 'roles#index'
     get 'dashboard', to: 'dashboard#index'
-    resources :tasks
+
+    resources :tasks do
+      member do
+        patch :mark_complete   # 👈 custom route for marking a task as complete
+      end
+    end
+
     resources :users, only: [:index]
     resources :subtasks, only: [:update]
     resources :comments, only: [:create]
+    resources :statuses, only: [:index]
 
     # Add other API routes here later (tasks, comments, etc.)
   end
