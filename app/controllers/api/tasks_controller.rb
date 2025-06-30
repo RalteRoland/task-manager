@@ -15,16 +15,18 @@ class Api::TasksController < ApplicationController
             end
 
     tasks_json = @tasks.map do |task|
-      task.as_json(
-        only: [:id, :title, :description, :due_date, :priority],
-        include: {
-          status: { only: [:id, :name] }
-        }
-      ).merge(
-        display_status: task.display_status,
-        assignee: task.assignee_name
-      )
-    end
+    task.as_json(
+      only: [:id, :title, :description, :due_date],
+      include: {
+        status: { only: [:id, :name] },
+        priority: { only: [:id, :name] }
+      }
+    ).merge(
+      display_status: task.display_status,
+      assignee: task.assignee_name
+    )
+  end
+
 
     render json: tasks_json
   end
@@ -42,6 +44,12 @@ class Api::TasksController < ApplicationController
       name: @task.display_status || 'open'
     }
 
+    task_data[:priority] = {
+      id: @task.priority&.id,
+      name: @task.priority&.name
+    }
+
+
     task_data[:assignee_name] = @task.assignee&.name
     task_data[:assignee_email] = @task.assignee&.email
     task_data[:creator_name] = @task.user.name
@@ -55,14 +63,23 @@ class Api::TasksController < ApplicationController
     @task = current_user.tasks.build(task_params)
 
     if @task.save
-      # Include attachments in the response if they exist
-      response_data = @task.as_json
+      response_data = @task.as_json(
+        only: [:id, :title, :description, :due_date, :reminder_option, :created_at],
+        include: {
+          status: { only: [:id, :name] },
+          priority: { only: [:id, :name] }
+        }
+      ).merge(
+        display_status: @task.display_status,
+        assignee: @task.assignee_name
+      )
+
       if @task.attachments.any?
         response_data['attachments'] = @task.attachments.map do |attachment|
           {
             id: attachment.id,
             filename: attachment.filename.to_s,
-            url: url_for(attachment) # This generates a URL to access the file
+            url: url_for(attachment)
           }
         end
       end
@@ -72,6 +89,7 @@ class Api::TasksController < ApplicationController
       render json: { errors: @task.errors.full_messages }, status: :unprocessable_entity
     end
   end
+
 
   def update
     if @task.update(task_params)
@@ -124,7 +142,7 @@ class Api::TasksController < ApplicationController
       :description,
       :assignee_id,
       :due_date,
-      :priority,
+      :priority_id,  # ✅ Fix this
       :status_id,
       :reminder_option,
       attachments: [],

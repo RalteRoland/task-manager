@@ -12,3 +12,8 @@ statuses = ["open", "in_progress", "done", "overdue"]
 statuses.each do |status_name|
   Status.find_or_create_by(name: status_name)
 end
+
+
+Priority.find_or_create_by(name: "Low")
+Priority.find_or_create_by(name: "Medium")
+Priority.find_or_create_by(name: "High")

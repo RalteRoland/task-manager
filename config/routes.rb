@@ -20,6 +20,7 @@ Rails.application.routes.draw do
     resources :subtasks, only: [:update]
     resources :comments, only: [:create]
     resources :statuses, only: [:index]
+    resources :priorities, only: [:index]
 
     # Add other API routes here later (tasks, comments, etc.)
   end

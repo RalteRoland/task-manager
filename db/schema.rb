@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_06_30_062505) do
+ActiveRecord::Schema[8.0].define(version: 2025_06_30_110713) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -52,6 +52,13 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_30_062505) do
     t.index ["user_id"], name: "index_comments_on_user_id"
   end
 
+  create_table "priorities", force: :cascade do |t|
+    t.string "name", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_priorities_on_name", unique: true
+  end
+
   create_table "roles", force: :cascade do |t|
     t.string "name", null: false
     t.text "description"
@@ -84,9 +91,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_30_062505) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "assignee_id"
-    t.string "priority"
     t.string "reminder_option"
     t.bigint "status_id", default: 1, null: false
+    t.bigint "priority_id", default: 2, null: false
+    t.index ["priority_id"], name: "index_tasks_on_priority_id"
     t.index ["status_id"], name: "index_tasks_on_status_id"
     t.index ["user_id"], name: "index_tasks_on_user_id"
   end
@@ -115,6 +123,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_30_062505) do
   add_foreign_key "comments", "tasks"
   add_foreign_key "comments", "users"
   add_foreign_key "subtasks", "tasks"
+  add_foreign_key "tasks", "priorities"
   add_foreign_key "tasks", "statuses"
   add_foreign_key "tasks", "users"
   add_foreign_key "users", "roles"
