@@ -1,6 +1,5 @@
 class Api::RolesController < ApplicationController
-    def index
-      roles = Role.all.order(:name)
-      render json: roles.select(:id, :name)
-    end
+  def index
+    render json: Role.order(:name)
+  end
 end

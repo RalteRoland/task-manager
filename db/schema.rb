@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_06_30_110713) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_04_044859) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -48,6 +48,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_30_110713) do
     t.bigint "task_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "comment_order"
+    t.index ["task_id", "comment_order"], name: "index_comments_on_task_id_and_comment_order", unique: true
     t.index ["task_id"], name: "index_comments_on_task_id"
     t.index ["user_id"], name: "index_comments_on_user_id"
   end
@@ -56,6 +58,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_30_110713) do
     t.string "name", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "active", default: true
     t.index ["name"], name: "index_priorities_on_name", unique: true
   end
 
@@ -64,6 +67,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_30_110713) do
     t.text "description"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "active", default: true
     t.index ["name"], name: "index_roles_on_name", unique: true
   end
 
@@ -71,6 +75,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_30_110713) do
     t.string "name", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "active", default: true
     t.index ["name"], name: "index_statuses_on_name", unique: true
   end
 
@@ -113,6 +118,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_30_110713) do
     t.string "name"
     t.string "status"
     t.bigint "role_id"
+    t.boolean "active", default: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["role_id"], name: "index_users_on_role_id"

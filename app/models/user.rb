@@ -15,6 +15,10 @@ class User < ApplicationRecord
     self[:name].presence || email
   end
 
+  def status_label
+    active ? "Active" : "Inactive"
+  end
+
   private
 
   def ensure_authentication_token

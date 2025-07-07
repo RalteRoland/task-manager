@@ -1,5 +1,5 @@
 class Api::PrioritiesController < ApplicationController
   def index
-    render json: Priority.all
+    render json: Priority.order(:name)
   end
 end

@@ -14,11 +14,9 @@ class Task < ApplicationRecord
   before_create :set_default_status
   after_initialize :set_default_status, if: :new_record?
 
-  VALID_PRIORITIES = %w[low medium high].freeze
-
   validates :title, :description, :due_date, :priority, presence: true
-  validates :priority, inclusion: { in: VALID_PRIORITIES }
-  validates :status, presence: true  # ✅ Now only checks presence, not a string
+
+  validates :status, presence: true
 
   def set_default_status
     self.status ||= Status.find_by(name: 'open')
@@ -39,10 +37,6 @@ class Task < ApplicationRecord
       status&.name || 'unknown'
     end
   end
-
-
-
-
 
   def overdue?
     status.name != 'done' && due_date.present? && due_date < Date.today

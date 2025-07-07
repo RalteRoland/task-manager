@@ -1,6 +1,6 @@
 class Api::TasksController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_task, only: [:show, :update, :destroy, :mark_complete] # 👈 Add mark_complete
+  before_action :set_task, only: [:show, :update, :destroy, :mark_complete]
 
   # Skip CSRF protection for API endpoints
   skip_before_action :verify_authenticity_token
@@ -49,15 +49,18 @@ class Api::TasksController < ApplicationController
       name: @task.priority&.name
     }
 
-
     task_data[:assignee_name] = @task.assignee&.name
     task_data[:assignee_email] = @task.assignee&.email
     task_data[:creator_name] = @task.user.name
     task_data[:creator_email] = @task.user.email
     task_data[:attachments] = @task.attachments.map { |file| url_for(file) }
 
+    # ✅ Add Comments Here
+    task_data[:total_comments] = @task.comments.count
+
     render json: task_data
   end
+
 
   def create
     @task = current_user.tasks.build(task_params)
@@ -93,7 +96,6 @@ class Api::TasksController < ApplicationController
 
   def update
     if @task.update(task_params)
-      # 👈 FIX: Return consistent format like other methods
       render json: {
         id: @task.id,
         status: {
@@ -112,7 +114,7 @@ class Api::TasksController < ApplicationController
     head :no_content
   end
 
-  # 👈 FIX: Make sure this method is properly defined
+
   def mark_complete
     @task = current_user.tasks.find(params[:id])
     done_status = Status.find_by(name: 'done')
@@ -142,7 +144,7 @@ class Api::TasksController < ApplicationController
       :description,
       :assignee_id,
       :due_date,
-      :priority_id,  # ✅ Fix this
+      :priority_id,
       :status_id,
       :reminder_option,
       attachments: [],

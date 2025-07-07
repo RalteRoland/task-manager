@@ -1,6 +1,5 @@
 class Api::StatusesController < ApplicationController
   def index
-    statuses = Status.all
-    render json: statuses
+    render json: Status.order(:name)
   end
 end

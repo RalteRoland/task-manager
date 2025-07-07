@@ -4,6 +4,8 @@ Rails.application.routes.draw do
                sessions: "users/sessions"
              }
 
+  match '*path', to: 'application#options', via: :options
+
   # ✅ All API routes grouped together
   namespace :api do
     get "statuses/index"
@@ -18,7 +20,7 @@ Rails.application.routes.draw do
 
     resources :users, only: [:index]
     resources :subtasks, only: [:update]
-    resources :comments, only: [:create]
+    resources :comments, only: [:create, :index, :destroy]
     resources :statuses, only: [:index]
     resources :priorities, only: [:index]
 
