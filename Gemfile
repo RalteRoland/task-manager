@@ -19,6 +19,8 @@ gem "jbuilder"
 gem "devise"
 gem "rack-cors"
 gem "active_model_serializers"
+gem 'whenever', require: false
+
 
 
 
